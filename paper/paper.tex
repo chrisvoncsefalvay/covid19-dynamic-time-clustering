@@ -1,0 +1,70 @@
+%!TEX TS-program = xelatex
+%
+% Created by Chris on 2020-07-30.
+% Copyright (c) Chris von Csefalvay, 2020.
+\documentclass{article}
+\usepackage{amsmath}
+
+% Bibliography styling
+\usepackage[super,square,sort&compress,numbers]{natbib}
+\bibliographystyle{unsrtnat}
+
+% Graphics
+\usepackage{graphicx}
+
+\title{Time series classification of COVID-19 dynamics in the United States}
+\author{Chris von Csefalvay\thanks{Starschema Inc., Arlington, VA. Correspondence: \texttt{csefalvayk@starschema.net}.}}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+    TBW.
+\end{abstract}
+
+
+\section{Introduction} % (fold)
+\label{sec:introduction}
+
+The emergence of SARS-CoV-2, and its associated viral syndrome COVID-19, has raised important questions about the ways we analyse and identify dynamic temporal processes. In particular, by identifying similarities in principal time-dependent indicators of epidemic dynamics, such as incidence (the number of confirmed cases over time), we can gain insight into similarities that are likely to emerge across various regions. Through this, time series clustering has the potential to play a significant role in understanding the dynamic processes that drive an outbreak.
+
+Clustering is the wider set of algorithms within unsupervised learning that identify similar patterns among data in arbitrarily high-dimensional spaces, effectively taking a set $\mathcal{P}$ of $N$ vectors in an $n$-dimensional space, and assigning to each of these a label from the set $\mathcal{L}$, so that the assignment of each element of $\mathcal{P}$ to the groups defined by the labels comprising $\mathcal{L}$ minimise some objective function (typically referred to as the distance metric of the clustering). Cluster algorithms are widely used today, and their practical applications, such as recommendation engines or personalised discounts offered to holders of a loyalty card scheme are ubiquitous. 
+
+Time series clustering presents a particular complication of this problem insofar as the subject of clustering is not a vector representing a single value, but rather a time series. These time series are typically not in synchrony, but rather exhibit a range of delays, lags and leads, and may depend on extrinsic hidden variables. We may formulate time series clustering as follows. Let $X$ comprise $n$ time series $x_{1 \ldots n}$, and let $k$ denote the cardinality of the set $\mathcal{L}$ -- in other words, the number of partitions we wish to split the data into, with $k \leq n$. Then, the mapping $f: X \rightarrow l, l \in \mathcal{L}$ is a clustering if it assigns to any element $x_i \in X, i \leq n$ one (and only one) cluster $l_i \in \mathcal{L}$, so as to minimise an objective function (typically referred to in this context as a distance metric) $J$ within the cluster.
+
+
+% section introduction (end)
+
+\section{Methods} % (fold)
+\label{sec:methods}
+
+% section methods (end)
+
+\section{Results} % (fold)
+\label{sec:results}
+
+% section results (end)
+
+\section{Discussion} % (fold)
+\label{sec:discussion}
+
+% section discussion (end)
+
+\section*{Competing interests} % (fold)
+\label{sec:competing_interests}
+
+The author declares no competing interests.
+
+% section competing_interests (end)
+
+\section*{Supplementary data} % (fold)
+\label{sec:supplementary_data}
+
+All simulations, code and data are available on Github and under the DOI \texttt{10.5281/zenodo.3959666}.
+
+% section supplementary_data (end)
+
+\bibliography{bibliography}
+
+\end{document}
