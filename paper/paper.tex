@@ -4,10 +4,15 @@
 % Copyright (c) Chris von Csefalvay, 2020.
 \documentclass{article}
 \usepackage{amsmath}
+\usepackage{amsfonts}
+
 
 % Bibliography styling
 \usepackage[super,square,sort&compress,numbers]{natbib}
 \bibliographystyle{unsrtnat}
+
+% Define eqdef operator
+\newcommand{\eqdef}{\overset{\mathrm{def}}{=\joinrel=}}
 
 % Graphics
 \usepackage{graphicx}
@@ -29,20 +34,121 @@
 
 The emergence of SARS-CoV-2, and its associated viral syndrome COVID-19, has raised important questions about the ways we analyse and identify dynamic temporal processes. In particular, by identifying similarities in principal time-dependent indicators of epidemic dynamics, such as incidence (the number of confirmed cases over time), we can gain insight into similarities that are likely to emerge across various regions. Through this, time series clustering has the potential to play a significant role in understanding the dynamic processes that drive an outbreak.
 
-Clustering is the wider set of algorithms within unsupervised learning that identify similar patterns among data in arbitrarily high-dimensional spaces, effectively taking a set $\mathcal{P}$ of $N$ vectors in an $n$-dimensional space, and assigning to each of these a label from the set $\mathcal{L}$, so that the assignment of each element of $\mathcal{P}$ to the groups defined by the labels comprising $\mathcal{L}$ minimise some objective function (typically referred to as the distance metric of the clustering). Cluster algorithms are widely used today, and their practical applications, such as recommendation engines or personalised discounts offered to holders of a loyalty card scheme are ubiquitous. 
+Clustering is the wider set of algorithms within unsupervised learning that identify similar patterns among data in arbitrarily high-dimensional spaces, effectively taking a set $\mathcal{P}$ of $N$ vectors in an $n$-dimensional space, and assigning to each of these a label from the set $\mathcal{L}$, so that the assignment of each element of $\mathcal{P}$ to the groups defined by the labels comprising $\mathcal{L}$ minimise some objective function (typically referred to as the distance metric of the clustering). Cluster algorithms are widely used today and their practical applications are ubiquitous, ranging from identifying clinical phenotypes in clinical medicine\cite{ahmad2014clinical,haldar2008cluster,lochner2005cluster,weatherall2009distinct,ye2014different} through fraud detection\cite{behera2015credit,liu2013healthcare,peng2006application,sabau2012survey,subudhi2017use} to image segmentation.\cite{chuang2006fuzzy,coleman1979image,jin2018accelerating,lafata2018data,pappas1989adaptive,wu1993optimal}
 
-Time series clustering presents a particular complication of this problem insofar as the subject of clustering is not a vector representing a single value, but rather a time series. These time series are typically not in synchrony, but rather exhibit a range of delays, lags and leads, and may depend on extrinsic hidden variables. We may formulate time series clustering as follows. Let $X$ comprise $n$ time series $x_{1 \ldots n}$, and let $k$ denote the cardinality of the set $\mathcal{L}$ -- in other words, the number of partitions we wish to split the data into, with $k \leq n$. Then, the mapping $f: X \rightarrow l, l \in \mathcal{L}$ is a clustering if it assigns to any element $x_i \in X, i \leq n$ one (and only one) cluster $l_i \in \mathcal{L}$, so as to minimise an objective function (typically referred to in this context as a distance metric) $J$ within the cluster.
+Time series clustering presents a particular complication of this problem insofar as the subject of clustering is not a vector representing a single value, but rather a time series. These time series are typically not in synchrony, but rather exhibit a range of delays, lags and leads, and may depend on extrinsic hidden variables. We may formulate the essential task of time series clustering as follows. Let $X$ comprise $n$ time series $x_{1 \ldots n}$, and let $k$ denote the cardinality of the set $\mathcal{L}$ -- in other words, the number of partitions we wish to split the data into, with $k \leq n$. Then, the mapping $f: X \rightarrow l \ | \ l \in \mathcal{L}$ is a clustering if it assigns to any element $x_i \in X \ | \ i \leq n$ one (and only one) cluster $l_i \in \mathcal{L}$, so as to minimise an objective function (typically referred to in this context as a distance metric) $J$ within the cluster.
 
+This paper examines the use of two time series clustering algorithms -- soft-DTW k-means clustering and k-shape clustering -- to identify different patterns in COVID-19 incidence in the continental United States, and comparing the results of the classifiers for inter-classifier consistency. By isolating the barycenters of the time-shifted clusters, we can identify consistent patterns in incidence dynamics across multiple states, quantifying the overall effect of pre-existing characteristics, population dynamics and non-pharmaceutical interventions (NPIs) between states.
 
 % section introduction (end)
 
 \section{Methods} % (fold)
 \label{sec:methods}
 
+\subsection{Source data} % (fold)
+\label{sub:source_data}
+
+
+% subsection source_data (end)
+
+\subsection{Soft-DTW k-means clustering} % (fold)
+\label{sub:soft_dtw_k_means_clustering}
+
+Since first described by Sakoe and Chiba (1978),\cite{sakoe1978dynamic} the dynamic time warping algorithm has been expressed in multiple formulations. The presentation below is based on Cuturi and Blondel's 2017 paper introducing Soft-DTW, with the marginal difference of using $J(\cdot, \cdot)$ instead of $\delta$ to represent the distance function.\cite{cuturi2017soft} 
+
+Given two time series $x_t: t_x \in \mathbb{Z}$ and $y_t: t_y \in \mathbb{Z}$, there exists a cost matrix $\Delta(\mathbf{x}, \mathbf{y})$ for the distance function $J$, from which we can derive the cost matrix 
+
+\begin{equation}
+	\Delta(\mathbf{x}, \mathbf{y}) = [J(x_i, y_j)]_{ij} \in \mathbb{R}^{t_x \times t_y} 
+\end{equation}
+
+For the two above-mentioned series, we describe the set of matrices of all possible alignments as $\mathcal{A}_{t_x, t_y}$, which is a strict subset of $\{0, 1\}^{t_x \times t_y}$. Then, DTW can be defined as the function that for any pair $(\mathbf{x}, \mathbf{y})$ identifies $A \in \mathcal{A}_{t_x, t_y}$ so as to minimise the inner product of A with the cost matrix $\Delta(\mathbf{x}, \mathbf{y})$.
+
+\begin{equation}
+	DTW(\mathbf{x}, \mathbf{y}) \eqdef \min_{A \in \mathcal{A}_{t_x, t_y}} \langle A_{t_x, t_y}, \Delta(\mathbf{x}, \mathbf{y})
+\end{equation}
+
+Thus, DTW can be conceived of as a search task, in which $\mathcal{A}_{t_x, t_y}$ is the search space within which we search for $A$ so as to minimise $\langle A, \Delta(\mathbf{x}, \mathbf{y}) \rangle$. 
+
+Soft-DTW universalises the notion underlying the DTW cost metric and the global alignment kernel metric
+
+\begin{equation}
+	GAK_{\gamma}(\mathbf{x}, \mathbf{y}) \eqdef \sum_{A \in \mathcal{A}_{t_x, t_y}} e^{- \frac{\langle A, \Delta(\mathbf{x}, \mathbf{y} \rangle)}{\gamma}}
+	\label{eq:gak}
+\end{equation}
+
+\noindent into a single metric.\cite{janati2020spatio} Given the generalisation of the minimum metric with a smoothing factor $\gamma \geq 0$,
+
+\begin{equation}
+	\min^{\gamma} \{a_{1 \ldots n}\} \eqdef 
+	\begin{cases}
+		\displaystyle \min_{i \leq n} a_i, 								& \gamma = 0 \\
+		- \gamma \log \displaystyle \sum_{i=1}^n e^{-\frac{a_i}{\gamma}},	& \gamma > 0
+	\end{cases}
+\end{equation}
+
+\noindent we may now define Soft-DTW as
+
+\begin{equation}
+	sDTW_{\gamma}(\mathbf{x}, \mathbf{y}) \eqdef \min_{A \in \mathcal{A}_{t_x, t_y}} ^{\gamma} \{ \langle A, \Delta(\mathbf{x}, \mathbf{y}) \rangle \}
+\end{equation}
+
+Importantly, Soft-DTW -- unlike the original DTW approach by Sakoe and Chiba\cite{sakoe1978dynamic} -- is explicitly differentiable. In particular, as Saigo (2006) noted,\cite{saigo2006optimizing} the gradient of 
+ Equation~\eqref{eq:gak} can be calculated quite conveniently. Let $\hat{A}$ be the average alignment matrix following the Boltzmann distribution $p_{\gamma} \sim e^{- \langle A_i, \frac{\Delta(\mathbf{x}, \mathbf{y}) \rangle}{\gamma}}$ for all $A_i \in \mathcal{A}_{t_x, t_y}$. Then, 
+ 
+\begin{equation}
+ 	\hat{A} = \frac{\displaystyle \sum_{A_i \in \mathcal{A}_{t_x, t_y}} A_i e^{- \langle A, \frac{\Delta(\mathbf{x}, \mathbf{y})}{\gamma}\rangle}}{GAK_{\gamma}(\mathbf{x}, \mathbf{y})}
+ \end{equation}
+
+\noindent and consequently
+
+\begin{equation}
+	\nabla_{\mathbf{x}} DTW_{\gamma} (\mathbf{x}, \mathbf{y}) = \Bigg( \frac{\partial \Delta(\mathbf{x}, \mathbf{y})}{\partial \mathbf{x}} \Bigg)^T \hat{A}
+\end{equation}
+
+This can be easily calculated using backward recursion, as described in Algorithm 2 of Cuturi and Blondel (2017).\cite{cuturi2017soft} In addition, the notion of a clustering centroid can be generalised to the metric space comprising the time series to yield Fr\^{e}chet means, also referred to in this context as barycenters. For a metric space $(M, \tau)$, $p \in M$ is a Fr\^{e}chet mean of order $q \geq 1$ of the time series $x_{1 \ldots n} \in M$ if it minimises the Fr\^{e}chet variance, i.e.
+
+\begin{equation}
+	p = \mathop{arg min}_{r \in M} \sum_{j = 1}^n \tau(x_j, r)^q
+\end{equation}
+
+Based on dynamic time warping distances between temporal signals, we can construct a clustering that divides the COVID-19 incidence time series for the 48 states of the contiguous United States into a number of clusters so as to minimise distances using k-nearest neighbour clustering. Soft-DTW clustering was performed using \texttt{tslearn} 0.4.1\cite{JMLR:v21:20-091} using Python 3.7, with a $\gamma$ parameter of $0.1$.
+
+% subsection soft_dtw_k_means_clustering (end)
+
+\subsection{k-shape clustering} % (fold)
+\label{sub:k_shape_clustering}
+
+k-shape clustering is a novel, robust clustering algorithm for time series that relies on iteratively refining clusters, with cross-correlation as the underlying distance metric.\cite{paparrizos2015k} Specifically, k-shape relies on a normalised version of cross-correlation, referred to in this context as Shape Base Distance (SBD): time series are Z-normalised (i.e. $\mu = 0$ and $\sigma = 1$), and the resulting cross-correlation sequence is divided by the geometric mean of the individual time series' autocorrelations, i.e.
+
+\begin{equation}
+	SBD(\mathbf{x}, \mathbf{y}) = 1 - \max_w \Bigg( \frac{C_w(\mathbf{x}, \mathbf{y})}{\sqrt{R_0(x, x) \cdot R_0(y, y)}} \Bigg)
+\end{equation}
+
+\noindent where $R_0(a, b) = \sum_{n = 1}^m a_n \cdot b_n$. 
+
+The barycenter is then computed as the time series maximising the sum of squares of the correlations to every other time series within the cluster. 
+
+Similarly to the clustering effected in Subsection~\ref{sub:soft_dtw_k_means_clustering}, k-shape clustering was performed using the \texttt{tslearn} package's \texttt{clustering.KShape} classifier, with a \texttt{n\_init} setting at 16 iterations for centroid seeds, using the result with the lowest inertia, random initialization and a convergence tolerance of $10^{-6}$.
+
+% subsection k_shape_clustering (end)
+
 % section methods (end)
 
 \section{Results} % (fold)
 \label{sec:results}
+
+\subsection{Patterns of incidence dynamics} % (fold)
+\label{sub:patterns_of_incidence_dynamics}
+
+
+
+% subsection patterns_of_incidence_dynamics (end)
+
+\subsection{Inter-classifier consistency} % (fold)
+\label{sub:inter_classifier_consistency}
+
+% subsection inter_classifier_consistency (end)
 
 % section results (end)
 
