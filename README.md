@@ -1,6 +1,6 @@
-# Dynamic time clustering of COVID-19 in the US
+# Vector quantisation and partitioning of COVID-19 temporal dynamics in the United States
 
-This repository holds the manuscript, as well as the notebook containing calculations and producing the plots, from the paper _(title tbd)_ by Chris von Csefalvay.
+This repository holds the manuscript, as well as the notebook containing calculations and producing the plots, from the paper _Vector quantisation and partitioning of COVID-19 temporal dynamics in the United States_ by Chris von Csefalvay.
 
 ## Notebooks
 
